@@ -19,6 +19,7 @@ class SetListModel(
     val spotifyPlaylist: String,
 
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
+    @OrderColumn(name = "song_order")
     val songs: List<SongModel>,
 )
 
