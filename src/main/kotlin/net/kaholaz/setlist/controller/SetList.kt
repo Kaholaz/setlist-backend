@@ -106,7 +106,7 @@ class SetListController {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Set list not found")
         }
 
-        val setListData = spotifyService.retrievePlayList(setList.spotifyPlaylist)
+        val setListData = spotifyService.retrievePlaylist(setList.spotifyPlaylist)
         val model = SetListModel(
             id = setList.id,
             title = setListData.title,

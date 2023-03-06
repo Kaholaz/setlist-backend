@@ -32,7 +32,7 @@ class SpotifyService {
         .setClientSecret(System.getenv("SPOTIFY_CLIENT_SECRET"))
         .build()
 
-    fun retrievePlayList(playListUrl : String) : SetListModel {
+    fun retrievePlaylist(playListUrl : String) : SetListModel {
         val clientCredentialsRequest = spotifyApi.clientCredentials().build()
 
         logger.debug("Retrieving access token from Spotify before retrieving playlist")
