@@ -77,33 +77,33 @@ class SetListController {
     }
 
     @PostMapping("/setlist/{id}")
-    fun updateSetlist(@PathVariable id: String, @RequestBody setlist: SetListDTO): SetListDTO {
-        if (id != setlist.id) {
+    fun updateSetlist(@PathVariable id: String, @RequestBody setList: SetListDTO): SetListDTO {
+        if (id != setList.id) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "ID in path and body do not match")
         }
         setListRepository.findById(id).getOrElse {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Set list not found")
         }
 
-        val newSetList = setlist.toModel()
+        val newSetList = setList.toModel()
         setListRepository.save(newSetList)
         return SetListDTO(newSetList)
     }
 
     @PostMapping("/setlist/{id}/syncSpotify")
-    fun syncSpotify(@PathVariable id: String, @RequestBody setlist: SetListDTO): SetListDTO {
-        if (id != setlist.id) {
+    fun syncSpotify(@PathVariable id: String, @RequestBody setList: SetListDTO): SetListDTO {
+        if (id != setList.id) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "ID in path and body do not match")
         }
         val setListModel = setListRepository.findById(id).getOrElse {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Set list not found")
         }
 
-        val setListData = spotifyService.retrievePlayList(setlist.spotifyPlaylist)
+        val setListData = spotifyService.retrievePlayList(setList.spotifyPlaylist)
         val model = SetListModel(
-            id = setlist.id,
+            id = setList.id,
             title = setListData.title,
-            spotifyPlaylist = setlist.spotifyPlaylist,
+            spotifyPlaylist = setList.spotifyPlaylist,
             songs = setListData.songs,
         )
 
