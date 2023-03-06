@@ -5,6 +5,7 @@ import net.kaholaz.setlist.database.SetListRepository
 import net.kaholaz.setlist.database.SongModel
 import net.kaholaz.setlist.database.SongRepository
 import net.kaholaz.setlist.service.SpotifyService
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -50,6 +51,8 @@ data class SongDTO(
 @RestController
 @OptIn(ExperimentalStdlibApi::class)
 class SetListController {
+    val logger = LoggerFactory.getLogger(SetListController::class.java)
+
     @Autowired
     lateinit var setListRepository: SetListRepository
     @Autowired
@@ -59,6 +62,7 @@ class SetListController {
 
     @GetMapping("/setlist/{id}")
     fun getSetList(@PathVariable id: String): SetListDTO {
+        logger.info("Retrieving set list with id: $id")
         val setList = setListRepository.findById(id)
 
         return SetListDTO(
@@ -69,6 +73,7 @@ class SetListController {
 
     @PostMapping("/setlist/new")
     fun newSetList(@RequestBody setList: SetListDTO): SetListDTO {
+        logger.info("Creating new set list with name: ${setList.name}")
         val newSetList = setList.toModel()
         newSetList.id = null
 
@@ -78,6 +83,7 @@ class SetListController {
 
     @PostMapping("/setlist/{id}")
     fun updateSetlist(@PathVariable id: String, @RequestBody setList: SetListDTO): SetListDTO {
+        logger.info("Updating set list with id: $id")
         if (id != setList.id) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "ID in path and body do not match")
         }
@@ -92,6 +98,7 @@ class SetListController {
 
     @PostMapping("/setlist/{id}/syncSpotify")
     fun syncSpotify(@PathVariable id: String, @RequestBody setList: SetListDTO): SetListDTO {
+        logger.info("Syncing set list with id: $id")
         if (id != setList.id) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "ID in path and body do not match")
         }
