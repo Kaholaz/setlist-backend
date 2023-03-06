@@ -6,7 +6,10 @@ import net.kaholaz.setlist.database.SongModel
 import net.kaholaz.setlist.database.SongRepository
 import net.kaholaz.setlist.service.SpotifyService
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
+import kotlin.jvm.optionals.getOrElse
 
 data class SetListDTO(
     val id: String?,
@@ -45,6 +48,7 @@ data class SongDTO(
 }
 
 @RestController
+@OptIn(ExperimentalStdlibApi::class)
 class SetListController {
     @Autowired
     lateinit var setListRepository: SetListRepository
@@ -56,7 +60,11 @@ class SetListController {
     @GetMapping("/setlist/{id}")
     fun getSetList(@PathVariable id: String): SetListDTO {
         val setList = setListRepository.findById(id)
-        return SetListDTO(setList.get())
+
+        return SetListDTO(
+            setList.getOrElse
+            { throw ResponseStatusException(HttpStatus.NOT_FOUND, "Set list not found") }
+        )
     }
 
     @PostMapping("/setlist/new")
@@ -71,7 +79,10 @@ class SetListController {
     @PostMapping("/setlist/{id}")
     fun updateSetlist(@PathVariable id: String, @RequestBody setlist: SetListDTO): SetListDTO {
         if (id != setlist.id) {
-            throw IllegalArgumentException("ID in path and body do not match")
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "ID in path and body do not match")
+        }
+        setListRepository.findById(id).getOrElse {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Set list not found")
         }
 
         val newSetList = setlist.toModel()
@@ -82,7 +93,10 @@ class SetListController {
     @PostMapping("/setlist/{id}/syncSpotify")
     fun syncSpotify(@PathVariable id: String, @RequestBody setlist: SetListDTO): SetListDTO {
         if (id != setlist.id) {
-            throw IllegalArgumentException("ID in path and body do not match")
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "ID in path and body do not match")
+        }
+        val setListModel = setListRepository.findById(id).getOrElse {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Set list not found")
         }
 
         val setListData = spotifyService.retrievePlayList(setlist.spotifyPlaylist)
