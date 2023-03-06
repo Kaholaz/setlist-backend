@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import se.michaelthelin.spotify.exceptions.detailed.NotFoundException
 import kotlin.jvm.optionals.getOrElse
 
 data class SetListDTO(
@@ -106,7 +107,12 @@ class SetListController {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Set list not found")
         }
 
-        val setListData = spotifyService.retrievePlaylist(setList.spotifyPlaylist)
+        val setListData: SetListModel
+        try {
+            setListData = spotifyService.retrievePlaylist(setList.spotifyPlaylist)
+        } catch (e: NotFoundException) {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Spotify playlist not found")
+        }
         val model = SetListModel(
             id = setList.id,
             title = setListData.title,
